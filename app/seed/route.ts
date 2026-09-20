@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import postgres from "postgres";
 
 import { invoices, customers, revenue, users } from "../lib/placeholder-data";
@@ -7,7 +7,7 @@ const sql = postgres(process.env.POSTGRES_URL!, {
   ssl: "require",
 });
 
-async function seedUsers() {
+async function seedUsers(sql: postgres.Sql) {
   await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
 
   await sql`
@@ -39,7 +39,7 @@ async function seedUsers() {
   return insertedUsers;
 }
 
-async function seedCustomers() {
+async function seedCustomers(sql: postgres.Sql) {
   await sql`
     CREATE TABLE IF NOT EXISTS customers (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -67,7 +67,7 @@ async function seedCustomers() {
   return insertedCustomers;
 }
 
-async function seedInvoices() {
+async function seedInvoices(sql: postgres.Sql) {
   await sql`
     CREATE TABLE IF NOT EXISTS invoices (
       id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -81,26 +81,26 @@ async function seedInvoices() {
   const insertedInvoices = await Promise.all(
     invoices.map(
       (invoice) => sql`
-      INSERT INTO invoices (
-        customer_id,
-        amount,
-        status,
-        date
-      )
-      VALUES (
-        ${invoice.customer_id},
-        ${invoice.amount},
-        ${invoice.status},
-        ${invoice.date}
-      );
-    `,
+        INSERT INTO invoices (
+          customer_id,
+          amount,
+          status,
+          date
+        )
+        VALUES (
+          ${invoice.customer_id},
+          ${invoice.amount},
+          ${invoice.status},
+          ${invoice.date}
+        );
+      `,
     ),
   );
 
   return insertedInvoices;
 }
 
-async function seedRevenue() {
+async function seedRevenue(sql: postgres.Sql) {
   await sql`
     CREATE TABLE IF NOT EXISTS revenue (
       month VARCHAR(4) NOT NULL UNIQUE,
@@ -123,24 +123,22 @@ async function seedRevenue() {
 
 export async function GET() {
   try {
-    await sql`BEGIN`;
-
-    await seedUsers();
-    await seedCustomers();
-    await seedInvoices();
-    await seedRevenue();
-
-    await sql`COMMIT`;
+    await sql.begin(async (sql) => {
+      await seedUsers(sql);
+      await seedCustomers(sql);
+      await seedInvoices(sql);
+      await seedRevenue(sql);
+    });
 
     return Response.json({
       message: "Database seeded successfully",
     });
   } catch (error) {
-    await sql`ROLLBACK`;
+    console.error(error);
 
     return Response.json(
       {
-        error,
+        error: "Failed to seed database",
       },
       {
         status: 500,
