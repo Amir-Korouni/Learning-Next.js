@@ -8,7 +8,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${playfair.className} antialiased`}>{children}</body>
+      <body className={`${playfair.className} antialiased bg-zinc-400`}>
+        {children}
+      </body>
     </html>
   );
 }
