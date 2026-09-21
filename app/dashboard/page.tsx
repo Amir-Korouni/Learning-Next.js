@@ -1,25 +1,22 @@
 import { lusitana } from "../ui/font";
-import { fetchRevenue, fetchLatestInvoices, fetchCardData,} from "../lib/data";
+import { fetchRevenue, fetchLatestInvoices, fetchCardData } from "../lib/data";
 import RevenueChart from "../ui/dashboard/revenue-chart";
 import LatestInvoices from "../ui/dashboard/latest-invoices";
 import { Card } from "../ui/dashboard/cards";
 
 const Page = async () => {
-  const revenu = await fetchRevenue();
-  // const latestInvoices = await fetchLatestInvoices();
-
-  const [revenue,latestInvoices,cardData] = await Promise.all([
+  const [revenu, latestInvoices, cardData] = await Promise.all([
     fetchRevenue(),
     fetchLatestInvoices(),
-    fetchCardData()
-  ])
-  
+    fetchCardData(),
+  ]);
+
   const {
     totalPaidInvoices,
     totalPendingInvoices,
     numberOfInvoices,
     numberOfCustomers,
-  } = await fetchCardData();
+  } = cardData;
 
   return (
     <>
