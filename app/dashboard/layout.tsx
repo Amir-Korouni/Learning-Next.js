@@ -2,10 +2,10 @@ import React from "react";
 import SideNav from "../ui/dashboard/sidenav";
 import { Metadata } from "next";
 
-// export const metadata: Metadata = {
-//   title: "Dashboard",
-//   description: "Dashboard page",
-// };
+export const metadata: Metadata = {
+  title: "Dashboard",
+  description: "Dashboard page",
+};
 
 type dashboard = {
   children: React.ReactNode;

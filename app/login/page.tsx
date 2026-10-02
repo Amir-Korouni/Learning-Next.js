@@ -1,6 +1,12 @@
 import AcmeLogo from "@/app/ui/acme-logo";
 import LoginForm from "@/app/ui/login-form";
 import { Suspense } from "react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Login Page",
+  description: "You can login to vercel website.",
+};
 
 export default function LoginPage() {
   return (
